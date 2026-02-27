@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <footer className="footer">
       <p>
         Made by{" "}
         <a
