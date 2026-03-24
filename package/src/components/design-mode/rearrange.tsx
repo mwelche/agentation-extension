@@ -5,6 +5,7 @@ import { captureElement } from "./section-detection";
 import { AnnotationPopupCSS } from "../annotation-popup-css";
 import type { DetectedSection, RearrangeState } from "./types";
 import styles from "./styles.module.scss";
+import { originalSetTimeout } from "../../utils/freeze-animations";
 
 // =============================================================================
 // Rearrange Overlay — Click-to-capture, free drag, resize
@@ -173,7 +174,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
   const dismissEdit = useCallback(() => {
     if (!editingId) return;
     setEditExiting(true);
-    setTimeout(() => { setEditingId(null); setEditExiting(false); }, 150);
+    originalSetTimeout(() => { setEditingId(null); setEditExiting(false); }, 150);
   }, [editingId]);
 
   const submitEdit = useCallback((text: string) => {
@@ -231,7 +232,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
   );
   useEffect(() => {
     if (!outlinesReady) {
-      const timer = setTimeout(() => setOutlinesReady(true), 380);
+      const timer = originalSetTimeout(() => setOutlinesReady(true), 380);
       return () => clearTimeout(timer);
     }
   }, []); // only on mount
@@ -432,7 +433,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
         const idsToDelete = new Set(selectedIds);
         setExitingIds(prev => { const next = new Set(prev); for (const id of idsToDelete) next.add(id); return next; });
         setSelectedIds(new Set());
-        setTimeout(() => {
+        originalSetTimeout(() => {
           const rs = rearrangeStateRef.current;
           onChange({
             ...rs,
@@ -709,7 +710,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
     (id: string) => {
       setExitingIds(prev => { const next = new Set(prev); next.add(id); return next; });
       setSelectedIds(prev => { const next = new Set(prev); next.delete(id); return next; });
-      setTimeout(() => {
+      originalSetTimeout(() => {
         const rs = rearrangeStateRef.current;
         onChange({
           ...rs,
@@ -799,7 +800,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
         for (const [id, data] of exiting) next.set(id, data);
         return next;
       });
-      const timer = setTimeout(() => {
+      const timer = originalSetTimeout(() => {
         setExitingConnectors(prev => {
           const next = new Map(prev);
           for (const id of exiting.keys()) next.delete(id);

@@ -80,6 +80,7 @@ import {
   unfreeze as unfreezeAll,
   originalSetTimeout,
   originalSetInterval,
+  originalRequestAnimationFrame,
 } from "../../utils/freeze-animations";
 
 import type { Annotation } from "../../types";
@@ -461,14 +462,14 @@ export function PageFeedbackToolbarCSS({
   const rearrangeSelectedIdsRef = useRef<Set<string>>(new Set());
   // Track start positions for cross-drag (set when drag starts)
   const crossDragStartRef = useRef<Map<string, { x: number; y: number }> | null>(null);
-  const designExitTimer = useRef<ReturnType<typeof setTimeout>>();
+  const designExitTimer = useRef<ReturnType<typeof originalSetTimeout>>();
 
   // Delay blank canvas .visible by one frame when becoming visible so CSS transition fires
   const canvasShouldBeVisible = isDesignMode && isActive && !designOverlayExiting && blankCanvas;
   useEffect(() => {
     if (canvasShouldBeVisible) {
       setCanvasReady(false);
-      const raf = requestAnimationFrame(() => {
+      const raf = originalRequestAnimationFrame(() => {
         setCanvasReady(true);
       });
       return () => cancelAnimationFrame(raf);
@@ -480,7 +481,7 @@ export function PageFeedbackToolbarCSS({
   // Shadow annotation tracking (design → server sync)
   const placementAnnotationMap = useRef(new Map<string, string>()); // placementId → server annotationId
   const rearrangeAnnotationMap = useRef(new Map<string, string>()); // sectionId → server annotationId
-  const rearrangeDebounceTimer = useRef<ReturnType<typeof setTimeout>>();
+  const rearrangeDebounceTimer = useRef<ReturnType<typeof originalSetTimeout>>();
 
   // Draw mode state
   const [isDrawMode, setIsDrawMode] = useState(false);
@@ -497,7 +498,7 @@ export function PageFeedbackToolbarCSS({
   const exitingAlphaRef = useRef(1);
 
   const [tooltipSessionActive, setTooltipSessionActive] = useState(false);
-  const tooltipSessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+  const tooltipSessionTimerRef = useRef<ReturnType<typeof originalSetTimeout> | null>(
     null,
   );
 
@@ -524,7 +525,7 @@ export function PageFeedbackToolbarCSS({
 
   const handleControlsMouseEnter = () => {
     if (!tooltipSessionActive) {
-      tooltipSessionTimerRef.current = setTimeout(
+      tooltipSessionTimerRef.current = originalSetTimeout(
         () => setTooltipSessionActive(true),
         850,
       );
@@ -567,7 +568,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
   const toggleTheme = () => {
     portalWrapperRef.current?.classList.add(styles.disableTransitions);
     setIsDarkMode((previous) => !previous);
-    requestAnimationFrame(() => {
+    originalRequestAnimationFrame(() => {
       portalWrapperRef.current?.classList.remove(styles.disableTransitions);
     });
   }
@@ -627,7 +628,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
 
   const popupRef = useRef<AnnotationPopupCSSHandle>(null);
   const editPopupRef = useRef<AnnotationPopupCSSHandle>(null);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof originalSetTimeout> | null>(null);
 
   const pathname =
     typeof window !== "undefined" ? window.location.pathname : "/";
@@ -1145,7 +1146,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
     if (!mounted || !demoAnnotations || demoAnnotations.length === 0) return;
     if (annotations.length > 0) return;
 
-    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
+    const timeoutIds: ReturnType<typeof originalSetTimeout>[] = [];
 
     timeoutIds.push(
       originalSetTimeout(() => {
@@ -1599,7 +1600,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
         el.style.position = origStyles.position;
         el.style.zIndex = origStyles.zIndex;
         // Clean up transition + display + ancestors after animation completes
-        setTimeout(() => {
+        originalSetTimeout(() => {
           el.style.transition = "";
           el.style.display = origStyles.display;
           for (const a of ancestors) {
@@ -1619,7 +1620,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
     // Don't reset subMode here — it causes a crossfade during exit animation.
     // It stays on the last-used tab for next time.
     clearTimeout(designExitTimer.current);
-    designExitTimer.current = setTimeout(() => {
+    designExitTimer.current = originalSetTimeout(() => {
       setDesignOverlayExiting(false);
     }, 300);
   }, []);
@@ -1631,7 +1632,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
       setIsDesignMode(false);
       setActiveDesignComponent(null);
       clearTimeout(designExitTimer.current);
-      designExitTimer.current = setTimeout(() => {
+      designExitTimer.current = originalSetTimeout(() => {
         setDesignOverlayExiting(false);
       }, 300);
     }

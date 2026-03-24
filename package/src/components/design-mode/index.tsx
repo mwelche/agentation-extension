@@ -5,6 +5,7 @@ import { COMPONENT_MAP, DEFAULT_SIZES, type ComponentType, type DesignPlacement 
 import { Skeleton } from "./skeletons";
 import { AnnotationPopupCSS } from "../annotation-popup-css";
 import styles from "./styles.module.scss";
+import { originalSetTimeout } from "../../utils/freeze-animations";
 
 // =============================================================================
 // Layout Mode Overlay
@@ -182,7 +183,7 @@ export function DesignMode({
         setExitingIds(allIds);
         setSelectedIds(new Set());
         interactionRef.current = null;
-        setTimeout(() => {
+        originalSetTimeout(() => {
           onChange([]);
           setExitingIds(new Set());
         }, 180);
@@ -206,7 +207,7 @@ export function DesignMode({
         const toDelete = new Set(selectedIds);
         setExitingIds(toDelete);
         setSelectedIds(new Set());
-        setTimeout(() => {
+        originalSetTimeout(() => {
           onChange(placementsRef.current.filter((p) => !toDelete.has(p.id)));
           setExitingIds(new Set());
         }, 180);
@@ -602,7 +603,7 @@ export function DesignMode({
         next.delete(id);
         return next;
       });
-      setTimeout(() => {
+      originalSetTimeout(() => {
         onChange(placementsRef.current.filter((p) => p.id !== id));
         setExitingIds((prev) => {
           const next = new Set(prev);
@@ -649,7 +650,7 @@ export function DesignMode({
   const dismissEdit = useCallback(() => {
     if (!editingId) return;
     setEditExiting(true);
-    setTimeout(() => { setEditingId(null); setEditExiting(false); }, 150);
+    originalSetTimeout(() => { setEditingId(null); setEditExiting(false); }, 150);
   }, [editingId]);
 
   // Dismiss popup when overlay starts exiting

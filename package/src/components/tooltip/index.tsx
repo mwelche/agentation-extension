@@ -14,8 +14,8 @@ export const Tooltip = ({
   const [shouldRender, setShouldRender] = useState(false);
   const [position, setPosition] = useState({ top: 0, right: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const exitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof originalSetTimeout> | null>(null);
+  const exitTimeoutRef = useRef<ReturnType<typeof originalSetTimeout> | null>(null);
 
   const updatePosition = () => {
     if (triggerRef.current) {

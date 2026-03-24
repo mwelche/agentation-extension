@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { COMPONENT_REGISTRY, DEFAULT_SIZES, type ComponentType } from "./types";
+import { originalRequestAnimationFrame, originalSetTimeout } from "../../utils/freeze-animations";
 import styles from "./styles.module.scss";
 
 function scrollFadeClass(el: HTMLDivElement | null) {
@@ -684,7 +685,7 @@ function RollingCount({ value, suffix }: { value: number; suffix?: string }) {
   const [dir, setDir] = useState<"up" | "down">("up");
   const cur = useRef(value);
   const curSuffix = useRef(suffix);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof originalSetTimeout>>();
 
   const suffixChanged = prev !== null && prevSuffix !== suffix;
 
@@ -703,7 +704,7 @@ function RollingCount({ value, suffix }: { value: number; suffix?: string }) {
       cur.current = value;
       curSuffix.current = suffix;
       clearTimeout(timer.current);
-      timer.current = setTimeout(() => setPrev(null), 250);
+      timer.current = originalSetTimeout(() => setPrev(null), 250);
     } else {
       curSuffix.current = suffix;
     }
@@ -778,7 +779,7 @@ export function DesignPalette({
   const lastFooterCount = useRef(0);
   const lastFooterSuffix = useRef("");
   const rafRef = useRef(0);
-  const exitTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const exitTimerRef = useRef<ReturnType<typeof originalSetTimeout>>();
   const placeScrollRef = useRef<HTMLDivElement>(null);
   const [placeFade, setPlaceFade] = useState("");
 
@@ -787,8 +788,8 @@ export function DesignPalette({
       setMounted(true);
       clearTimeout(exitTimerRef.current);
       cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = originalRequestAnimationFrame(() => {
+        rafRef.current = originalRequestAnimationFrame(() => {
           setAnimClass("enter");
         });
       });
@@ -796,7 +797,7 @@ export function DesignPalette({
       cancelAnimationFrame(rafRef.current);
       setAnimClass("exit");
       clearTimeout(exitTimerRef.current);
-      exitTimerRef.current = setTimeout(() => {
+      exitTimerRef.current = originalSetTimeout(() => {
         setMounted(false);
         onExited?.();
       }, 200);
@@ -816,8 +817,8 @@ export function DesignPalette({
       if (!footerVisible) {
         setFooterCollapsed(true);
         setFooterVisible(true);
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
+        originalRequestAnimationFrame(() => {
+          originalRequestAnimationFrame(() => {
             setFooterCollapsed(false);
           });
         });
@@ -826,7 +827,7 @@ export function DesignPalette({
       }
     } else {
       setFooterCollapsed(true);
-      const t = setTimeout(() => setFooterVisible(false), 300);
+      const t = originalSetTimeout(() => setFooterVisible(false), 300);
       return () => clearTimeout(t);
     }
   }, [hasFooterContent]);
