@@ -31,7 +31,7 @@ function isMajorVersion(version: string): boolean {
 const releases: Release[] = [
   {
     version: "3.0.0",
-    date: "March 18, 2026",
+    date: "March 24, 2026",
     summary: <>Show your agent where things go. <a href="/blog/layout-mode" className="styled-link">Layout mode</a> lets you place components, rearrange sections, and wireframe new pages. Your agent gets coordinates and dimensions instead of a paragraph of directions.</>,
     changes: [
       { type: "added", text: <>Layout mode — press <code>L</code> to drag components onto the page, rearrange existing sections, or wireframe from scratch</> },

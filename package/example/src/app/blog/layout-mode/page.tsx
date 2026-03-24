@@ -16,7 +16,7 @@ export default function LayoutModePage() {
               margin: "0 0 0.5rem 0",
             }}
           >
-            March 18, 2026
+            March 24, 2026
           </p>
           <h1>Introducing Layout Mode</h1>
           <p className="tagline">Explore, wireframe, rearrange</p>
@@ -80,7 +80,7 @@ export default function LayoutModePage() {
         </section>
 
         <p>
-          Layout mode ships in <Link href="/changelog">v3.0</Link>. Press <code>L</code> on any page with the toolbar installed.
+          Layout mode extends Agentation beyond feedback into planning, wireframing, and exploring ideas in real-time. It ships in <Link href="/changelog">v3.0</Link>. We hope you find it useful.
         </p>
       </article>
 

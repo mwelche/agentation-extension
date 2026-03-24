@@ -16,7 +16,7 @@ const posts: BlogPost[] = [
     slug: "layout-mode",
     title: "Introducing Layout Mode",
     description: "Show your agent where things go — drag components, rearrange sections, and wireframe pages instead of describing layouts in words.",
-    date: "March 18, 2026",
+    date: "March 24, 2026",
     image: "/blog/layout-mode.png",
   },
   {
