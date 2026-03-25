@@ -184,6 +184,7 @@
 
 .settingsPage {
   min-width: 100%;
+  flex-basis: 0;
   flex-shrink: 0;
   transition:
     transform 0.2s ease,
@@ -421,6 +422,7 @@
 }
 
 .colorOption {
+  padding: 0;
   position: relative;
   border-radius: 50%;
   width: 20px;
