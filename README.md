@@ -5,7 +5,9 @@
 
 <br>
 
-**Agentation** is a Chrome extension that lets you annotate any web page and copy structured feedback for AI coding agents. Click elements, add notes, and get markdown with selectors, positions, and context — so agents can `grep` for the exact code you're referring to.
+**Agentation Extension** is a Chrome extension that lets you annotate any web page and copy structured feedback for AI coding agents. Click elements, add notes, and get markdown with selectors, positions, and context — so agents can `grep` for the exact code you're referring to.
+
+This project is a fork of the original [agentation](https://github.com/benjitaylor/agentation) npm package by [Benji Taylor](https://github.com/benjitaylor), refactored from a React component into a standalone Chrome extension by [Mathieu Welche](https://github.com/mwelche).
 
 ## Install
 
@@ -61,6 +63,10 @@ Built with [Preact](https://preactjs.com/) and [Vite](https://vitejs.dev/).
 
 - Chrome or Chromium-based browser
 - Desktop only (mobile not supported)
+
+## Credits
+
+Created by [Mathieu Welche](https://github.com/mwelche), forked from [agentation](https://github.com/benjitaylor/agentation) by [Benji Taylor](https://github.com/benjitaylor).
 
 ## License
 
