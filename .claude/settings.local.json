@@ -107,7 +107,13 @@
       "Bash(do echo \"=== Session: $id ===\" curl -s \"http://localhost:4747/sessions/$id\")",
       "Bash(git rev-parse:*)",
       "Bash(git log:*)",
-      "mcp__agentation__agentation_get_all_pending"
+      "mcp__agentation__agentation_get_all_pending",
+      "mcp__context7__resolve-library-id",
+      "Bash(pnpm typecheck:*)",
+      "Bash(for f:*)",
+      "Bash(do sed:*)",
+      "Bash(echo \"Fixed $f\")",
+      "Bash(du -sh /Users/mathieuwelche/workspace/agentation-extension/dist/content.*)"
     ]
   },
   "enableAllProjectMcpServers": false
