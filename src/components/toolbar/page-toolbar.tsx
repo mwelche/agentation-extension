@@ -239,6 +239,16 @@ function deepElementFromPoint(x: number, y: number): HTMLElement | null {
   let element = document.elementFromPoint(x, y) as HTMLElement | null;
   if (!element) return null;
 
+  // Skip the extension's own shadow host — we never want to annotate it
+  if (element.id === "agentation-host") {
+    // Temporarily hide host, find the element behind it, then restore
+    const host = element;
+    host.style.display = "none";
+    element = document.elementFromPoint(x, y) as HTMLElement | null;
+    host.style.display = "";
+    if (!element) return null;
+  }
+
   // Keep drilling down through shadow roots
   while (element?.shadowRoot) {
     const deeper = element.shadowRoot.elementFromPoint(x, y) as HTMLElement | null;
@@ -1843,6 +1853,10 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
     const handleMouseMove = (e: MouseEvent) => {
       // Use composedPath to get actual target inside shadow DOM
       const target = (e.composedPath()[0] || e.target) as HTMLElement;
+      if (target.id === "agentation-host" || target.closest?.("#agentation-host")) {
+        setHoverInfo(null);
+        return;
+      }
       if (closestCrossingShadow(target, "[data-feedback-toolbar]")) {
         setHoverInfo(null);
         return;
@@ -1936,6 +1950,11 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
 
       // Use composedPath to get actual target inside shadow DOM, falling back to e.target
       const target = (e.composedPath()[0] || e.target) as HTMLElement;
+
+      // In the Chrome extension, the toolbar lives in a closed shadow root.
+      // Clicks on it bubble to document with the shadow host as the target.
+      // Skip any click that lands on or inside the extension's own host.
+      if (target.id === "agentation-host" || target.closest?.("#agentation-host")) return;
 
       if (closestCrossingShadow(target, "[data-feedback-toolbar]")) return;
       if (closestCrossingShadow(target, "[data-annotation-popup]")) return;
