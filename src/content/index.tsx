@@ -6,8 +6,9 @@
 // the Agentation toolbar inside it.
 
 import { render } from "preact";
-import { createShadowHost, injectStyles } from "./shadow-host";
+import { createShadowHost, injectStyles, injectCSSText } from "./shadow-host";
 import { Toolbar } from "../components/toolbar";
+import { COLOR_TOKEN_CSS } from "../components/toolbar/page-toolbar";
 import { initStorage } from "../utils/storage";
 import type { Message } from "../shared/messages";
 
@@ -22,6 +23,11 @@ async function bootstrap() {
   const { shadow, container } = createShadowHost();
   const cssUrl = chrome.runtime.getURL("content.css");
   await injectStyles(shadow, cssUrl);
+
+  // Inject colour tokens (CSS custom properties) into the shadow root.
+  // These were previously injected into document.head which doesn't
+  // cascade into a closed shadow root.
+  injectCSSText(shadow, COLOR_TOKEN_CSS);
 
   // 3. Render toolbar
   let toolbarVisible = true;

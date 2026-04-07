@@ -40,8 +40,21 @@ export function createShadowHost(): ShadowHostResult {
 
   const shadow = host.attachShadow({ mode: "closed" });
 
+  // The container spans the full viewport so that position: absolute/fixed
+  // children (markers, popups, hover overlays) can position correctly.
+  // pointer-events: none ensures it doesn't block the page — individual
+  // interactive children opt in with pointer-events: auto.
   const container = document.createElement("div");
   container.id = "agentation-root";
+  container.style.cssText = [
+    "position: fixed",
+    "top: 0",
+    "left: 0",
+    "width: 100vw",
+    "height: 100vh",
+    "pointer-events: none",
+    "overflow: visible",
+  ].join(";");
   shadow.appendChild(container);
 
   document.body.appendChild(host);
@@ -59,6 +72,16 @@ export async function injectStyles(
 ): Promise<void> {
   const response = await fetch(cssUrl);
   const cssText = await response.text();
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(cssText);
+  shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
+}
+
+/**
+ * Injects a raw CSS string into the shadow root via adoptedStyleSheets.
+ * Used for dynamically generated CSS (e.g. colour tokens).
+ */
+export function injectCSSText(shadow: ShadowRoot, cssText: string): void {
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(cssText);
   shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];

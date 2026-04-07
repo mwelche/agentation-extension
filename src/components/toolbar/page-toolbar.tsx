@@ -195,36 +195,37 @@ export const COLOR_OPTIONS = [
   { id: "red",     label: "Red",     srgb: "#FF383C", p3: "color(display-p3 1.00 0.22 0.24)" },
 ];
 
-const injectAgentationColorTokens = () => {
-  if (typeof document === "undefined") return;
-  if (document.getElementById("agentation-color-tokens")) return;
-  const style = document.createElement("style");
-  style.id = "agentation-color-tokens";
-  style.textContent = [
-    ...COLOR_OPTIONS.map(c => `
+/**
+ * Generates the CSS text for agentation colour tokens.
+ * In the Chrome extension these must live inside the shadow root
+ * (not document.head), so we export the CSS for injection via
+ * adoptedStyleSheets and also inject a <style> into the shadow root
+ * container on first render.
+ */
+const COLOR_TOKEN_CSS = [
+  ...COLOR_OPTIONS.map(c => `
+    [data-agentation-accent="${c.id}"] {
+      --agentation-color-accent: ${c.srgb};
+    }
+
+    @supports (color: color(display-p3 0 0 0)) {
       [data-agentation-accent="${c.id}"] {
-        --agentation-color-accent: ${c.srgb};
+        --agentation-color-accent: ${c.p3};
       }
+    }
+  `),
+  // Use :host for shadow root, with :root fallback for non-shadow contexts
+  `:host, :root {
+    ${COLOR_OPTIONS.map(c => `--agentation-color-${c.id}: ${c.srgb};`).join("\n")}
+  }`,
+  `@supports (color: color(display-p3 0 0 0)) {
+    :host, :root {
+      ${COLOR_OPTIONS.map(c => `--agentation-color-${c.id}: ${c.p3};`).join("\n")}
+    }
+  }`,
+].join("");
 
-      @supports (color: color(display-p3 0 0 0)) {
-        [data-agentation-accent="${c.id}"] {
-          --agentation-color-accent: ${c.p3};
-        }
-      }
-    `),
-    `:root {
-      ${COLOR_OPTIONS.map(c => `--agentation-color-${c.id}: ${c.srgb};`).join("\n")}
-    }`,
-    `@supports (color: color(display-p3 0 0 0)) {
-      :root {
-        ${COLOR_OPTIONS.map(c => `--agentation-color-${c.id}: ${c.p3};`).join("\n")}
-      }
-    }`,
-  ].join("");
-  document.head.appendChild(style);
-}
-
-injectAgentationColorTokens();
+export { COLOR_TOKEN_CSS };
 
 // =============================================================================
 // Utils
