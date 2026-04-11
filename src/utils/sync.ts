@@ -1,117 +1,114 @@
 // =============================================================================
-// Server Sync Utilities
+// Server Sync Utilities — Chrome Extension
 // =============================================================================
 //
 // Optional server synchronization for the Agentation protocol.
-// When an endpoint is provided, annotations sync to a server.
-// Falls back gracefully to local-only mode on network errors.
+// All HTTP requests are proxied through the background worker via
+// PROXY_FETCH messages to bypass CORS restrictions that content scripts
+// face when calling external servers.
 //
+// Falls back gracefully to local-only mode on network errors.
 
 import type { Annotation, Session, SessionWithAnnotations } from "../shared/types";
+import type { ProxyFetchResponse } from "../shared/messages";
 
-/**
- * List all sessions from the server.
- */
-export async function listSessions(endpoint: string): Promise<Session[]> {
-  const response = await fetch(`${endpoint}/sessions`);
-  if (!response.ok) {
-    throw new Error(`Failed to list sessions: ${response.status}`);
-  }
-  return response.json();
+// ---------------------------------------------------------------------------
+// Proxied fetch — routes through background worker
+// ---------------------------------------------------------------------------
+
+async function proxyFetch(
+  url: string,
+  options?: { method?: string; headers?: Record<string, string>; body?: string },
+): Promise<ProxyFetchResponse> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { type: "PROXY_FETCH", url, options },
+      (response: ProxyFetchResponse | undefined) => {
+        if (chrome.runtime.lastError || !response) {
+          resolve({ ok: false, status: 0, body: null });
+          return;
+        }
+        resolve(response);
+      },
+    );
+  });
 }
 
-/**
- * Create a new session on the server.
- */
-export async function createSession(
-  endpoint: string,
-  url: string
-): Promise<Session> {
-  const response = await fetch(`${endpoint}/sessions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+async function proxyJson<T>(
+  url: string,
+  options?: { method?: string; body?: unknown },
+): Promise<T> {
+  const res = await proxyFetch(url, {
+    method: options?.method,
+    headers: options?.body ? { "Content-Type": "application/json" } : undefined,
+    body: options?.body ? JSON.stringify(options.body) : undefined,
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to create session: ${response.status}`);
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
   }
 
-  return response.json();
+  return res.body as T;
 }
 
-/**
- * Get an existing session with its annotations.
- */
+// ---------------------------------------------------------------------------
+// Public API (same signatures as the npm package version)
+// ---------------------------------------------------------------------------
+
+export async function listSessions(endpoint: string): Promise<Session[]> {
+  return proxyJson<Session[]>(`${endpoint}/sessions`);
+}
+
+export async function createSession(
+  endpoint: string,
+  url: string,
+): Promise<Session> {
+  return proxyJson<Session>(`${endpoint}/sessions`, {
+    method: "POST",
+    body: { url },
+  });
+}
+
 export async function getSession(
   endpoint: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<SessionWithAnnotations> {
-  const response = await fetch(`${endpoint}/sessions/${sessionId}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to get session: ${response.status}`);
-  }
-
-  return response.json();
+  return proxyJson<SessionWithAnnotations>(
+    `${endpoint}/sessions/${sessionId}`,
+  );
 }
 
-/**
- * Sync a new annotation to the server.
- * Returns the annotation with any server-assigned fields.
- */
 export async function syncAnnotation(
   endpoint: string,
   sessionId: string,
-  annotation: Annotation
+  annotation: Annotation,
 ): Promise<Annotation> {
-  const response = await fetch(`${endpoint}/sessions/${sessionId}/annotations`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(annotation),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to sync annotation: ${response.status}`);
-  }
-
-  return response.json();
+  return proxyJson<Annotation>(
+    `${endpoint}/sessions/${sessionId}/annotations`,
+    { method: "POST", body: annotation },
+  );
 }
 
-/**
- * Update an annotation on the server.
- */
 export async function updateAnnotation(
   endpoint: string,
   annotationId: string,
-  data: Partial<Annotation>
+  data: Partial<Annotation>,
 ): Promise<Annotation> {
-  const response = await fetch(`${endpoint}/annotations/${annotationId}`, {
+  return proxyJson<Annotation>(`${endpoint}/annotations/${annotationId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data,
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update annotation: ${response.status}`);
-  }
-
-  return response.json();
 }
 
-/**
- * Delete an annotation from the server.
- */
 export async function deleteAnnotation(
   endpoint: string,
-  annotationId: string
+  annotationId: string,
 ): Promise<void> {
-  const response = await fetch(`${endpoint}/annotations/${annotationId}`, {
+  const res = await proxyFetch(`${endpoint}/annotations/${annotationId}`, {
     method: "DELETE",
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete annotation: ${response.status}`);
+  if (!res.ok) {
+    throw new Error(`Failed to delete annotation: ${res.status}`);
   }
 }
 
@@ -125,25 +122,13 @@ export type ActionResponse = {
   };
 };
 
-/**
- * Request the agent to act on annotations.
- * Emits an action.requested event via SSE to notify connected agents.
- * Returns delivery info so the UI can show accurate feedback.
- */
 export async function requestAction(
   endpoint: string,
   sessionId: string,
-  output: string
+  output: string,
 ): Promise<ActionResponse> {
-  const response = await fetch(`${endpoint}/sessions/${sessionId}/action`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ output }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to request action: ${response.status}`);
-  }
-
-  return response.json();
+  return proxyJson<ActionResponse>(
+    `${endpoint}/sessions/${sessionId}/action`,
+    { method: "POST", body: { output } },
+  );
 }

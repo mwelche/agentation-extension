@@ -30,6 +30,34 @@ export type ClearAnnotationsMessage = {
   type: "CLEAR_ANNOTATIONS";
 };
 
+// ── Content script → Background (proxied fetch) ─────────────────────────────
+
+export type ProxyFetchMessage = {
+  type: "PROXY_FETCH";
+  url: string;
+  options?: {
+    method?: string;
+    headers?: Record<string, string>;
+    body?: string;
+  };
+};
+
+export type ProxyFetchResponse = {
+  ok: boolean;
+  status: number;
+  body: unknown;
+};
+
+// ── Content script → Background (screenshot) ────────────────────────────────
+
+export type CaptureScreenMessage = {
+  type: "CAPTURE_SCREEN";
+};
+
+export type CaptureScreenResponse = {
+  dataUrl: string | null;
+};
+
 // ── Content script → Popup (responses) ──────────────────────────────────────
 
 export type StateResponse = {
@@ -47,4 +75,6 @@ export type Message =
   | GetStateMessage
   | CopyMarkdownMessage
   | ClearAnnotationsMessage
+  | ProxyFetchMessage
+  | CaptureScreenMessage
   | StateResponse;
