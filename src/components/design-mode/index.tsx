@@ -246,7 +246,7 @@ export function DesignMode({
 
   // --- Click on empty space: place or start select box ---
   const handleOverlayMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    (e: MouseEvent) => {
       // Only handle left click on the overlay itself
       if (e.button !== 0) return;
       if (passthrough) return; // Let clicks fall through to rearrange
@@ -391,7 +391,7 @@ export function DesignMode({
 
   // --- Click on a placement: select ---
   const handlePlacementMouseDown = useCallback(
-    (e: React.MouseEvent, id: string) => {
+    (e: MouseEvent, id: string) => {
       if (e.button !== 0) return;
       const target = e.target as HTMLElement;
       if (target.closest(`.${styles.handle}`) || target.closest(`.${styles.deleteButton}`)) return;
@@ -503,7 +503,7 @@ export function DesignMode({
 
   // --- Resize handle ---
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent, id: string, dir: HandleDir) => {
+    (e: MouseEvent, id: string, dir: HandleDir) => {
       e.preventDefault();
       e.stopPropagation();
 
@@ -700,7 +700,7 @@ export function DesignMode({
                 position: "fixed",
               }}
               onMouseDown={(e) => handlePlacementMouseDown(e, p.id)}
-              onDoubleClick={() => handleDoubleClick(p.id)}
+              onDblClick={() => handleDoubleClick(p.id)}
             >
               <span className={styles.placementLabel}>{label}</span>
               <span className={`${styles.placementAnnotation} ${p.text ? styles.annotationVisible : ""}`}>{(() => { if (p.text) lastAnnotationTextRef.current.set(p.id, p.text); return p.text || lastAnnotationTextRef.current.get(p.id) || ""; })()}</span>

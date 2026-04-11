@@ -113,7 +113,8 @@
       "Bash(for f:*)",
       "Bash(do sed:*)",
       "Bash(echo \"Fixed $f\")",
-      "Bash(du -sh /Users/mathieuwelche/workspace/agentation-extension/dist/content.*)"
+      "Bash(du -sh /Users/mathieuwelche/workspace/agentation-extension/dist/content.*)",
+      "Bash(markdown\" and \"Clear all annotations\" buttons. Content script tracks:*)"
     ]
   },
   "enableAllProjectMcpServers": false

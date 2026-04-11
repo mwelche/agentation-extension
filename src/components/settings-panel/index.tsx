@@ -145,7 +145,7 @@ export function SettingsPanel({
               <Switch
                 checked={isDevMode && settings.reactEnabled}
                 onChange={(e) =>
-                  onSettingsChange({ reactEnabled: e.target.checked })
+                  onSettingsChange({ reactEnabled: (e.target as HTMLInputElement).checked })
                 }
                 disabled={!isDevMode}
               />
@@ -161,7 +161,7 @@ export function SettingsPanel({
               <Switch
                 checked={false}
                 onChange={(e) => {
-                  if (e.target.checked) onHideToolbar();
+                  if ((e.target as HTMLInputElement).checked) onHideToolbar();
                 }}
               />
             </div>
@@ -206,7 +206,7 @@ export function SettingsPanel({
               label="Clear on copy/send"
               checked={settings.autoClearAfterCopy}
               onChange={(e) =>
-                onSettingsChange({ autoClearAfterCopy: e.target.checked })
+                onSettingsChange({ autoClearAfterCopy: (e.target as HTMLInputElement).checked })
               }
               tooltip="Automatically clear annotations after copying"
             />
@@ -215,7 +215,7 @@ export function SettingsPanel({
               label="Block page interactions"
               checked={settings.blockInteractions}
               onChange={(e) =>
-                onSettingsChange({ blockInteractions: e.target.checked })
+                onSettingsChange({ blockInteractions: (e.target as HTMLInputElement).checked })
               }
             />
           </div>
@@ -326,7 +326,7 @@ export function SettingsPanel({
                   checked={settings.webhooksEnabled}
                   onChange={(e) =>
                     onSettingsChange({
-                      webhooksEnabled: e.target.checked,
+                      webhooksEnabled: (e.target as HTMLInputElement).checked,
                     })
                   }
                   disabled={!settings.webhookUrl}
@@ -342,7 +342,7 @@ export function SettingsPanel({
               placeholder="Webhook URL"
               value={settings.webhookUrl}
               onKeyDown={(e) => e.stopPropagation()}
-              onChange={(e) => onSettingsChange({ webhookUrl: e.target.value })}
+              onChange={(e) => onSettingsChange({ webhookUrl: (e.target as HTMLTextAreaElement).value })}
             />
           </div>
         </div>

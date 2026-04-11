@@ -3306,7 +3306,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
 
   // Handle toolbar drag start
   const handleToolbarMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    (e: MouseEvent) => {
       // Only drag when clicking the toolbar background (not buttons or settings)
       if (
         (e.target as HTMLElement).closest("button") ||
@@ -4042,7 +4042,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
               max={1}
               step={0.01}
               value={canvasOpacity}
-              onChange={(e) => setCanvasOpacity(Number(e.target.value))}
+              onChange={(e) => setCanvasOpacity(Number((e.target as HTMLInputElement).value))}
             />
           </div>
           <div className={designStyles.wireframeNoticeTitleRow}>

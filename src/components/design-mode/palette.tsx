@@ -638,7 +638,7 @@ export function PaletteIconSvg({ type }: { type: ComponentType }) {
 type ComponentGridProps = {
   activeType: ComponentType | null;
   onSelect: (type: ComponentType) => void;
-  onDragStart: (type: ComponentType, e: React.MouseEvent) => void;
+  onDragStart: (type: ComponentType, e: MouseEvent) => void;
   scrollRef?: React.Ref<HTMLDivElement>;
   fadeClass?: string;
   blankCanvas?: boolean;
@@ -746,7 +746,7 @@ type DesignPaletteProps = {
   onExited?: () => void;
   placementCount: number;
   onClearPlacements: () => void;
-  onDragStart: (type: ComponentType, e: React.MouseEvent) => void;
+  onDragStart: (type: ComponentType, e: MouseEvent) => void;
   blankCanvas: boolean;
   onBlankCanvasChange: (on: boolean) => void;
   wireframePurpose: string;
@@ -905,7 +905,7 @@ export function DesignPalette({
             className={styles.wireframePurposeInput}
             placeholder="Describe this page to provide additional context for your agent."
             value={wireframePurpose}
-            onChange={(e) => onWireframePurposeChange(e.target.value)}
+            onChange={(e) => onWireframePurposeChange((e.target as HTMLInputElement).value)}
             rows={2}
           />
         </div>

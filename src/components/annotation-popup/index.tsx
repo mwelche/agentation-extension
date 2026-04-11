@@ -163,7 +163,7 @@ export const AnnotationPopupCSS = forwardRef<AnnotationPopupCSSHandle, Annotatio
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         e.stopPropagation();
-        if (e.nativeEvent.isComposing) return;
+        if (e.isComposing) return;
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
           handleSubmit();
@@ -261,7 +261,7 @@ export const AnnotationPopupCSS = forwardRef<AnnotationPopupCSSHandle, Annotatio
           style={{ borderColor: isFocused ? accentColor : undefined }}
           placeholder={placeholder}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => setText((e.target as HTMLTextAreaElement).value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           rows={2}

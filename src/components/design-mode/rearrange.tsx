@@ -471,7 +471,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
 
   // --- Click outline: select + drag ---
   const handleOutlineMouseDown = useCallback(
-    (e: React.MouseEvent, id: string) => {
+    (e: MouseEvent, id: string) => {
       if (e.button !== 0) return;
       const target = e.target as HTMLElement;
       if (target.closest(`.${styles.handle}`) || target.closest(`.${styles.deleteButton}`)) return;
@@ -619,7 +619,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
 
   // --- Resize ---
   const handleResizeMouseDown = useCallback(
-    (e: React.MouseEvent, id: string, dir: HandleDir) => {
+    (e: MouseEvent, id: string, dir: HandleDir) => {
       e.preventDefault();
       e.stopPropagation();
       const section = sections.find(s => s.id === id);
@@ -838,7 +838,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
               className={`${styles.sectionOutline} ${isSelected ? styles.selected : ""} ${exitingAll || exiting || exitingIds.has(section.id) ? styles.exiting : ""}`}
               style={{ left: rect.x, top: screenY, width: rect.width, height: rect.height, borderColor: color.border, backgroundColor: color.bg, ...(outlinesReady ? {} : { opacity: 0, animation: "none", transition: "none" }) }}
               onMouseDown={(e) => handleOutlineMouseDown(e, section.id)}
-              onDoubleClick={() => handleDoubleClick(section.id)}
+              onDblClick={() => handleDoubleClick(section.id)}
             >
               <span className={styles.sectionLabel} style={{ backgroundColor: color.pill }}>
                 {section.label}
@@ -889,7 +889,7 @@ export function RearrangeOverlay({ rearrangeState, onChange, isDarkMode, exiting
               className={`${styles.ghostOutline} ${isSelected ? styles.selected : ""} ${exitingAll || exiting || exitingIds.has(section.id) ? styles.exiting : ""}`}
               style={{ left: rect.x, top: screenY, width: rect.width, height: rect.height, ...(outlinesReady ? {} : { opacity: 0, animation: "none", transition: "none" }), ...(!isNewGhost ? { animation: "none" } : {}) }}
               onMouseDown={(e) => handleOutlineMouseDown(e, section.id)}
-              onDoubleClick={() => handleDoubleClick(section.id)}
+              onDblClick={() => handleDoubleClick(section.id)}
             >
               <span className={styles.sectionLabel} style={{ backgroundColor: SECTION_COLOR.pill }}>
                 {section.label}

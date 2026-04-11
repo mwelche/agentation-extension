@@ -14,3 +14,12 @@ declare module "*.module.scss" {
 
 // Chrome extension API types
 /// <reference types="chrome" />
+
+// Optional dependency — Phase 2 screenshot capture will replace this
+// with chrome.tabs.captureVisibleTab
+declare module "modern-screenshot" {
+  export function domToCanvas(
+    node: Node,
+    options?: Record<string, unknown>,
+  ): Promise<HTMLCanvasElement>;
+}
