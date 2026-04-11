@@ -1,9 +1,4 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="package/logo-dark.svg">
-  <img src="package/logo.svg" alt="Agentation" width="200">
-</picture>
-
-<br>
+# Agentation Extension
 
 **Agentation Extension** is a Chrome extension that lets you annotate any web page and copy structured feedback for AI coding agents. Click elements, add notes, and get markdown with selectors, positions, and context — so agents can `grep` for the exact code you're referring to.
 
