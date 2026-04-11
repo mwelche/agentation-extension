@@ -82,6 +82,15 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
+.popup-btn-danger {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+.popup-btn-danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
 .popup-count {
   color: #a0a0b0;
   font-size: 12px;
