@@ -6,44 +6,47 @@ import { render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import type { StateResponse } from "../shared/messages";
 
+function sendToTab(
+  message: { type: string },
+  callback?: (response: unknown) => void,
+) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0]?.id;
+    if (tabId == null) return;
+    chrome.tabs.sendMessage(tabId, message, (response) => {
+      if (chrome.runtime.lastError) return;
+      callback?.(response);
+    });
+  });
+}
+
 function Popup() {
   const [state, setState] = useState<StateResponse | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const refreshState = () => {
+    sendToTab({ type: "GET_STATE" }, (response) => {
+      if (response) setState(response as StateResponse);
+    });
+  };
 
   useEffect(() => {
-    // Query the active tab's content script for current state
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = tabs[0]?.id;
-      if (tabId == null) return;
-
-      chrome.tabs.sendMessage(
-        tabId,
-        { type: "GET_STATE" },
-        (response: StateResponse | undefined) => {
-          if (chrome.runtime.lastError) {
-            // Content script not loaded on this page (e.g. chrome:// pages)
-            return;
-          }
-          if (response) setState(response);
-        },
-      );
-    });
+    refreshState();
   }, []);
 
   const toggleToolbar = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = tabs[0]?.id;
-      if (tabId == null) return;
-      chrome.tabs.sendMessage(tabId, { type: "TOGGLE_TOOLBAR" }, () => {
-        // Re-query state after toggle
-        chrome.tabs.sendMessage(
-          tabId,
-          { type: "GET_STATE" },
-          (response: StateResponse | undefined) => {
-            if (response) setState(response);
-          },
-        );
-      });
+    sendToTab({ type: "TOGGLE_TOOLBAR" }, () => refreshState());
+  };
+
+  const copyMarkdown = () => {
+    sendToTab({ type: "COPY_MARKDOWN" }, () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
     });
+  };
+
+  const clearAnnotations = () => {
+    sendToTab({ type: "CLEAR_ANNOTATIONS" }, () => refreshState());
   };
 
   const active = state?.active ?? false;
@@ -75,6 +78,17 @@ function Popup() {
             <button class="popup-btn" onClick={toggleToolbar}>
               {active ? "Hide toolbar" : "Show toolbar"}
             </button>
+
+            {count > 0 && (
+              <>
+                <button class="popup-btn" onClick={copyMarkdown}>
+                  {copied ? "Copied!" : "Copy as markdown"}
+                </button>
+                <button class="popup-btn popup-btn-danger" onClick={clearAnnotations}>
+                  Clear all annotations
+                </button>
+              </>
+            )}
           </div>
 
           <div class="popup-count">
