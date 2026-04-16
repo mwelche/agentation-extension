@@ -61,6 +61,9 @@ import {
   clearWireframeState,
   loadToolbarHidden,
   saveToolbarHidden,
+  getSetting,
+  setSetting,
+  removeSetting,
 } from "../../utils/storage";
 import {
   createSession,
@@ -561,12 +564,13 @@ export function PageFeedbackToolbarCSS({
 
 const [settings, setSettings] = useState<ToolbarSettings>(() => {
   try {
-    const saved = JSON.parse(localStorage.getItem("feedback-toolbar-settings") ?? "");
+    const saved = getSetting<Partial<ToolbarSettings>>("feedback-toolbar-settings");
+    if (!saved) return DEFAULT_SETTINGS;
     return {
       ...DEFAULT_SETTINGS,
       ...saved,
       annotationColorId: COLOR_OPTIONS.find(c => c.id === saved.annotationColorId)
-        ? saved.annotationColorId
+        ? saved.annotationColorId!
         : DEFAULT_SETTINGS.annotationColorId,
     };
   } catch {
@@ -705,47 +709,29 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
     }
 
     // Load saved theme preference, default to dark mode
-    try {
-      const savedTheme = localStorage.getItem("feedback-toolbar-theme");
-      if (savedTheme !== null) {
-        setIsDarkMode(savedTheme === "dark");
-      }
-      // If no saved preference, keep default (dark mode)
-    } catch (e) {
-      // Ignore localStorage errors
+    const savedTheme = getSetting<string>("feedback-toolbar-theme");
+    if (savedTheme !== null) {
+      setIsDarkMode(savedTheme === "dark");
     }
 
     // Load saved toolbar position
-    try {
-      const savedPosition = localStorage.getItem("feedback-toolbar-position");
-      if (savedPosition) {
-        const pos = JSON.parse(savedPosition);
-        if (typeof pos.x === "number" && typeof pos.y === "number") {
-          setToolbarPosition(pos);
-        }
-      }
-    } catch (e) {
-      // Ignore localStorage errors
+    const savedPosition = getSetting<{ x: number; y: number }>("feedback-toolbar-position");
+    if (savedPosition && typeof savedPosition.x === "number" && typeof savedPosition.y === "number") {
+      setToolbarPosition(savedPosition);
     }
   }, [pathname]);
 
   // Save settings
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem(
-        "feedback-toolbar-settings",
-        JSON.stringify(settings),
-      );
+      setSetting("feedback-toolbar-settings", settings);
     }
   }, [settings, mounted]);
 
   // Save theme preference
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem(
-        "feedback-toolbar-theme",
-        isDarkMode ? "dark" : "light",
-      );
+      setSetting("feedback-toolbar-theme", isDarkMode ? "dark" : "light");
     }
   }, [isDarkMode, mounted]);
 
@@ -757,10 +743,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
 
     // Save position when dragging ends (transition from true to false)
     if (wasDragging && !isDraggingToolbar && toolbarPosition && mounted) {
-      localStorage.setItem(
-        "feedback-toolbar-position",
-        JSON.stringify(toolbarPosition),
-      );
+      setSetting("feedback-toolbar-position", toolbarPosition);
     }
   }, [isDraggingToolbar, toolbarPosition, mounted]);
 
@@ -1241,7 +1224,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
         saveAnnotations(pathname, annotations);
       }
     } else if (mounted && annotations.length === 0) {
-      localStorage.removeItem(getStorageKey(pathname));
+      removeSetting(getStorageKey(pathname));
     }
   }, [annotations, pathname, mounted, currentSessionId]);
 
@@ -2954,7 +2937,7 @@ const [settings, setSettings] = useState<ToolbarSettings>(() => {
     originalSetTimeout(() => {
       setAnnotations([]);
       setAnimatedMarkers(new Set()); // Reset animated markers
-      localStorage.removeItem(getStorageKey(pathname));
+      removeSetting(getStorageKey(pathname));
       setIsClearing(false);
     }, totalAnimationTime);
 

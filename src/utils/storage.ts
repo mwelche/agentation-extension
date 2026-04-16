@@ -282,3 +282,17 @@ export function saveToolbarHidden(hidden: boolean): void {
     cacheRemove(TOOLBAR_HIDDEN_KEY);
   }
 }
+
+// ── General-purpose key/value (replaces direct localStorage calls) ──────────
+
+export function getSetting<T>(key: string): T | null {
+  return cacheGet<T>(key);
+}
+
+export function setSetting(key: string, value: unknown): void {
+  cacheSet(key, value);
+}
+
+export function removeSetting(key: string): void {
+  cacheRemove(key);
+}
